@@ -79,7 +79,9 @@ describe("Query Service", function () {
         let types = getJSONTypes(JSON.parse(test["expected-json-types"]));
         let expectedResult: any = generateResultJSON(test["expected-json"]);
         frisby.create(test["title"])
-            .post(URL, test["query"])
+            .post(URL, test["query"], {
+	json: true
+	    })
             .inspectRequest('Request: ')
             .inspectStatus('Response status: ')
             .inspectBody('Response body: ')
@@ -88,17 +90,17 @@ describe("Query Service", function () {
             .afterJSON(function (json: any) {
 
                 expect(typeof json.result).not.to.equal('undefined');
-
+		
                 // Generates a count of objects in the result and in the expected result
                 let a = lodash.countBy(json["result"], JSON.stringify);
                 let b = lodash.countBy(expectedResult["result"], JSON.stringify);
                 // Compares the two counts to check that the result is equal to the expected result
-                let c = lodash.isEqual(a, b);
+		let c = lodash.isEqual(a, b);
                 if (!c) {
                     Log.test("Expected:");
                     console.log(expectedResult["result"]);
                     Log.test("Received:");
-                    console.log(json["result"]);
+		    console.log(json["result"]);
                 }
                 expect(c).to.be.true;
 
@@ -106,28 +108,28 @@ describe("Query Service", function () {
                 c = lodash.isEqual(json["render"], expectedResult["render"]);
                 if (!c) {
                     Log.test("Expected:");
-                    Log.test(expectedResult["result"]);
+                    //Log.test(expectedResult["result"]);
                     Log.test("Received:");
-                    Log.test(json["result"]);
+//                    Log.test(json["result"]);
                 }
                 expect(c).to.be.true;
-		let order = test["query"]["ORDER"];
-		if(order != undefined) {
-		    let previous = -1;
-		    let previousEntry = {}
-		    for(let entry of json["result"]) {
-			let current = entry[order]
-			assert.isAtMost(previous, current, JSON.stringify(entry) + " should appear before " + JSON.stringify(previousEntry));
-			previous = current;
-			previousEntry = entry;
-		    }
-		}
-            })
+	    	let order = test["query"]["ORDER"];
+	    	if(order != undefined) {
+	    	    let previous = -1;
+	    	    let previousEntry = {}
+	    	    for(let entry of json["result"]) {
+	    		let current = entry[order]
+	    		assert.isAtMost(previous, current, JSON.stringify(entry) + " should appear before " + JSON.stringify(previousEntry));
+	    		previous = current;
+	    		previousEntry = entry;
+	    	    }
+	    	}
+        })
             .toss()
     }
 
     function getJSONTypes(json: any): {} {
-        var types: any = {};
+        let types: any = {};
         for (let key in json) {
             let t = json[key]
             types[key] = eval(t)
@@ -137,7 +139,7 @@ describe("Query Service", function () {
     }
 
     function generateResultJSON(query: any): {} {
-        var file = fs.readFileSync("./test/results/" + query)
+        let file = fs.readFileSync("./test/results/" + query)
         return JSON.parse(file);
     }
 
