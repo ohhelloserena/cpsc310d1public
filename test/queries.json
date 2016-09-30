@@ -43,7 +43,7 @@
         "WHERE": {
 			"AND": [
                 {"IS": {"courses_dept": "cpsc"}},
-                {"EQ": {"courses_id": "310"}}
+                {"EQ": {"courses_id": 310}}
 			]
         },
         "AS": "TABLE"
