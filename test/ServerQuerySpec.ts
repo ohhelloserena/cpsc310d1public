@@ -13,6 +13,7 @@ var fs = require('fs');
 var http = require('http');
 var lodash = require('lodash');
 import {expect, assert} from 'chai';
+import TestUtil from "./TestUtil";
 
 describe("Query Service", function () {
 
@@ -88,42 +89,21 @@ describe("Query Service", function () {
             .expectStatus(test["expected-status"])
             .expectJSONTypes(types)
             .afterJSON(function (json: any) {
-
+                // make sure the right properties are in the response
                 expect(typeof json.result).not.to.equal('undefined');
-
-                // Generates a count of objects in the result and in the expected result
-                let a = lodash.countBy(json["result"], JSON.stringify);
-                let b = lodash.countBy(expectedResult["result"], JSON.stringify);
-                // Compares the two counts to check that the result is equal to the expected result
-                let c = lodash.isEqual(a, b);
-                if (!c) {
-                    Log.test("Expected:");
-                    console.log(expectedResult["result"]);
-                    Log.test("Received:");
-                    console.log(json["result"]);
-                }
-                expect(c).to.be.true;
-
                 expect(typeof json.render).not.to.equal('undefined');
-                c = lodash.isEqual(json["render"], expectedResult["render"]);
-                if (!c) {
-                    Log.test("Expected:");
-                    //Log.test(expectedResult["result"]);
-                    Log.test("Received:");
-//                    Log.test(json["result"]);
+                // make sure the render is the same
+                var renderSame = lodash.isEqual(json["render"], expectedResult["render"]);
+                expect(renderSame).to.be.true;
+
+                // figure out if there's a sort
+                let sortKey: any = null;
+                if (typeof test["query"]["ORDER"] !== 'undefined') {
+                    sortKey = test["query"]["ORDER"];
                 }
-                expect(c).to.be.true;
-                let order = test["query"]["ORDER"];
-                if (order != undefined) {
-                    let previous = -1;
-                    let previousEntry = {}
-                    for (let entry of json["result"]) {
-                        let current = entry[order]
-                        assert.isAtMost(previous, current, JSON.stringify(entry) + " should appear before " + JSON.stringify(previousEntry));
-                        previous = current;
-                        previousEntry = entry;
-                    }
-                }
+                // compare the output
+                var sameOutput = TestUtil.compareJSONArrays(json.result, expectedResult.result, sortKey);
+                expect(sameOutput).to.be.true;
             })
             .toss()
     }
