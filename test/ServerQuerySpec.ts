@@ -80,8 +80,8 @@ describe("Query Service", function () {
         let expectedResult: any = generateResultJSON(test["expected-json"]);
         frisby.create(test["title"])
             .post(URL, test["query"], {
-	json: true
-	    })
+                json: true
+            })
             .inspectRequest('Request: ')
             .inspectStatus('Response status: ')
             .inspectBody('Response body: ')
@@ -90,17 +90,17 @@ describe("Query Service", function () {
             .afterJSON(function (json: any) {
 
                 expect(typeof json.result).not.to.equal('undefined');
-		
+
                 // Generates a count of objects in the result and in the expected result
                 let a = lodash.countBy(json["result"], JSON.stringify);
                 let b = lodash.countBy(expectedResult["result"], JSON.stringify);
                 // Compares the two counts to check that the result is equal to the expected result
-		let c = lodash.isEqual(a, b);
+                let c = lodash.isEqual(a, b);
                 if (!c) {
                     Log.test("Expected:");
                     console.log(expectedResult["result"]);
                     Log.test("Received:");
-		    console.log(json["result"]);
+                    console.log(json["result"]);
                 }
                 expect(c).to.be.true;
 
@@ -113,18 +113,18 @@ describe("Query Service", function () {
 //                    Log.test(json["result"]);
                 }
                 expect(c).to.be.true;
-	    	let order = test["query"]["ORDER"];
-	    	if(order != undefined) {
-	    	    let previous = -1;
-	    	    let previousEntry = {}
-	    	    for(let entry of json["result"]) {
-	    		let current = entry[order]
-	    		assert.isAtMost(previous, current, JSON.stringify(entry) + " should appear before " + JSON.stringify(previousEntry));
-	    		previous = current;
-	    		previousEntry = entry;
-	    	    }
-	    	}
-        })
+                let order = test["query"]["ORDER"];
+                if (order != undefined) {
+                    let previous = -1;
+                    let previousEntry = {}
+                    for (let entry of json["result"]) {
+                        let current = entry[order]
+                        assert.isAtMost(previous, current, JSON.stringify(entry) + " should appear before " + JSON.stringify(previousEntry));
+                        previous = current;
+                        previousEntry = entry;
+                    }
+                }
+            })
             .toss()
     }
 
